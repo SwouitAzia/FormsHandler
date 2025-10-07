@@ -1,0 +1,7 @@
+# FormsHandler configuration
+
+# Enable or disable all enhanced UI features
+enhanced-ui: true
+
+# Pack name
+pack-name: "FormsHandlerUI"
