@@ -7,6 +7,11 @@ use FormsHandler\exceptions\FormCreationException;
 use pocketmine\form\FormValidationException;
 use pocketmine\player\Player;
 
+/**
+ * Represents a ModalForm used for user interaction.
+ *
+ * This form provides two buttons for the user to choose from.
+ */
 class ModalForm extends AbstractForm {
     public function __construct() {
         parent::__construct();

@@ -17,6 +17,11 @@ use FormsHandler\handlers\CustomFormResponseValidation;
 use pocketmine\form\FormValidationException;
 use pocketmine\player\Player;
 
+/**
+ * Represents a CustomForm used for user interaction.
+ *
+ * This form allows adding interactive elements, labels, headers, and dividers.
+ */
 class CustomForm extends AbstractForm {
     /** @var CustomFormElement[] $elements */
     private array $elements = [];
