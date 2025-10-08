@@ -8,13 +8,13 @@ use FormsHandler\sessions\SessionsHandler;
 use FormsHandler\types\AbstractForm;
 use JsonException;
 use pocketmine\event\Listener;
+use pocketmine\event\server\DataPacketDecodeEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\event\server\DataPacketSendEvent;
 use pocketmine\form\FormValidationException;
 use pocketmine\network\mcpe\protocol\ModalFormRequestPacket;
 use pocketmine\network\mcpe\protocol\ModalFormResponsePacket;
-use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
-use pocketmine\network\mcpe\protocol\ServerboundDiagnosticsPacket;
+use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\PacketHandlingException;
 use ReflectionClass;
 use ReflectionException;
@@ -24,30 +24,35 @@ use ReflectionException;
  *
  * The PacketHandler ensures the integrity of the form lifecycle by:
  *  - Intercepting incoming packets from clients to validate responses.
- *  - Verifying that players cannot interact, move, or respond to closed forms.
- *  - Tracking outgoing forms to maintain session consistency and prevent spoofed responses.
+ *  - Prevent players from sending unauthorized packets while a form is open.
+ *  - Clean up Player's internal form storage to prevent memory leaks.
  */
 class PacketsHandler implements Listener {
-    private const AUTHORIZED_PACKETS = [
-        // TODO
-        PlayerAuthInputPacket::class => PlayerAuthInputPacket::class,
-        ServerboundDiagnosticsPacket::class => ServerboundDiagnosticsPacket::class
+    /**
+     * List of packet IDs that are not allowed while a form is open.
+     *
+     * Used to protect against unauthorized actions or movement while interacting with a form.
+     */
+    const UNAUTHORIZED_PACKET_IDS = [
+        ProtocolInfo::INVENTORY_SLOT_PACKET => ProtocolInfo::INVENTORY_SLOT_PACKET,
+        ProtocolInfo::INVENTORY_TRANSACTION_PACKET => ProtocolInfo::INVENTORY_TRANSACTION_PACKET,
+        ProtocolInfo::ITEM_STACK_REQUEST_PACKET => ProtocolInfo::ITEM_STACK_REQUEST_PACKET,
+        ProtocolInfo::COMMAND_REQUEST_PACKET => ProtocolInfo::COMMAND_REQUEST_PACKET,
+        ProtocolInfo::TEXT_PACKET => ProtocolInfo::TEXT_PACKET
     ];
 
     /**
-     * Intercepts and validates all packets received from the client.
+     * Handles incoming form responses from clients.
      *
-     * - If the packet is a ModalFormResponsePacket, the method checks
-     *   whether the form ID matches the currently active one in the player’s session.
-     * - If the IDs don’t match, or if the form was already closed, the player
-     *   is disconnected with an error message.
-     * - Handles both valid form responses and cancelled (closed) forms.
-     * - Also closes the form if a restricted packet (like movement) is received
-     *   while a form is open.
+     * - Checks that the form ID matches the player's current session.
+     * - Decodes the JSON response data if present.
+     * - Calls `onFormResponse` to process the response.
+     * - Cancels the event to prevent PocketMine from handling it again.
      *
-     * @param DataPacketReceiveEvent $event The event triggered when a packet is received from a client.
+     * @param DataPacketReceiveEvent $event The packet received event.
      * @return void
-     * @throws PacketHandlingException
+     * @throws PacketHandlingException If form data cannot be decoded or other errors occur.
+     * @priority HIGHEST
      */
     public function onDataReceive(DataPacketReceiveEvent $event): void {
         $origin = $event->getOrigin();
@@ -58,12 +63,11 @@ class PacketsHandler implements Listener {
         $packet = $event->getPacket();
         if ($packet instanceof ModalFormResponsePacket) {
             $event->cancel();
-            if (!$player->isConnected()) return;
 
             $session = SessionsHandler::getInstance()->get($player);
             $id = $packet->formId;
             if ($id !== $session->getCurrentFormId()) {
-                $origin->disconnectWithError("Form response rejected: no active form or form ID mismatch (form may have been closed before responding or the player performed an action while the form was open).");
+                $origin->getLogger()->error("FormsHandler: Form response rejected, no active form or form ID mismatch.");
                 $session->setCurrentFormId(null);
                 return;
             }
@@ -74,76 +78,51 @@ class PacketsHandler implements Listener {
                 } elseif ($packet->formData !== null) {
                     try {
                         $responseData = json_decode($packet->formData, true, 2, JSON_THROW_ON_ERROR);
-                    } catch(JsonException $e) {
-                        throw PacketHandlingException::wrap($e, "Failed to decode form response data");
+                    } catch (JsonException $e) {
+                        throw new PacketHandlingException("FormsHandler: Failed to decode form response data (" . $e->getMessage() . ")");
                     }
                     $this->onFormResponse($session, $id, $responseData);
                 } else {
-                    throw new PacketHandlingException("Expected either formData or cancelReason to be set in ModalFormResponsePacket");
+                    throw new PacketHandlingException("FormsHandler: Expected either formData or cancelReason to be set in ModalFormResponsePacket");
                 }
             } catch (Exception $e) {
-                throw PacketHandlingException::wrap($e, "ModalFormResponsePacket handling: ");
+                throw new PacketHandlingException("FormsHandler: ModalFormResponsePacket handling: " . $e->getMessage());
             }
-
-        } else if (!isset(self::AUTHORIZED_PACKETS[$packet::class]) && SessionsHandler::getInstance()->get($player)->getCurrentFormId() !== null) {
-            $origin->disconnectWithError( "Unexpected client action detected while a form was open.");
-            SessionsHandler::getInstance()->get($player)->setCurrentFormId(null);
         }
     }
 
     /**
-     * Processes a validated form submission for the given player session.
+     * Handles decoding of any incoming packet to prevent unauthorized actions during an active form.
      *
-     * This replaces the default PocketMine Player::onFormSubmit() behavior.
-     * It handles both successful form responses and cancellations (form closed by player).
+     * - Cancels the event if the packet ID is in UNAUTHORIZED_PACKET_IDS while a form is open.
      *
-     * - Calls the associated form's handleResponse() method.
-     * - Wraps and logs any validation or packet handling exceptions.
-     * - Ensures the current form is reset afterward, regardless of success or failure.
-     *
-     * @param Session $session The player’s session that owns the form.
-     * @param int $formId The form ID being submitted.
-     * @param mixed $responseData The decoded form response data, or null if the form was closed.
-     *
+     * @param DataPacketDecodeEvent $event The decode event for an incoming packet.
      * @return void
-     * @throws ReflectionException
+     * @priority HIGHEST
      */
-    private function onFormResponse(Session $session, int $formId, mixed $responseData): void {
-        $player = $session->getPlayer();
-        $reflection = new ReflectionClass($player);
-        $property = $reflection->getProperty("forms");
-        $property->setAccessible(true);
-        /** @var AbstractForm $currentForm */
-        $currentForm = $property->getValue($player)[$formId];
+    public function onDataDecode(DataPacketDecodeEvent $event): void {
+        $origin = $event->getOrigin();
+        $player = $origin->getPlayer();
 
-        try {
-            $currentForm->handleResponse($session->getPlayer(), $responseData);
-        } catch (FormValidationException $e) {
-            $player->getNetworkSession()->disconnectWithError("Failed to validate form " . get_class($currentForm) . ": " . $e->getMessage());
-        } finally {
-            $session->setCurrentFormId(null);
-        }
+        if (!$origin->isConnected() || $player === null) return;
+        if (!isset(self::UNAUTHORIZED_PACKET_IDS[$event->getPacketId()]) || SessionsHandler::getInstance()->get($player)->getCurrentFormId() === null) return;
+
+        $event->cancel();
+        $origin->getLogger()->error("FormsHandler: Action detected while a form was open.");
     }
 
     /**
-     * Intercepts all outgoing packets sent to the client.
+     * Handles outgoing form packets to clients.
      *
-     * This method ensure that each sent form packet matches
-     * the player’s current session state and to prevent potential memory leaks
-     * caused by PocketMine’s internal form storage.
+     * - Ensures the player's session is updated with the current form ID.
+     * - Closes all previously open forms if needed.
+     * - Clears PocketMine's internal form storage to prevent memory leaks
+     *   caused by rapid multiple form submissions.
      *
-     * By default, PocketMine stores every sent form in the Player object’s
-     * `$forms` array until a response is received. However, if a player triggers
-     * a large number of forms (for example, by spamming interactions or sending
-     * multiple form requests in rapid succession), this array can grow indefinitely
-     * (credits : Zwuiix-cmd, Nya-Enzo).
-     *
-     * To prevent memory leaks and maintain stable performance, we
-     * clear this array whenever a form is sent and registered in the player’s session.
-     *
-     * @param DataPacketSendEvent $event The event triggered when packets are sent to the client.
+     * @param DataPacketSendEvent $event The event triggered when packets are sent to clients.
      * @return void
      * @throws ReflectionException
+     * @priority HIGHEST
      */
     public function onDataSend(DataPacketSendEvent $event): void {
         $targets = $event->getTargets();
@@ -160,11 +139,41 @@ class PacketsHandler implements Listener {
         if ($session->getCurrentFormId() !== null) $player->closeAllForms();
         $session->setCurrentFormId($packet->formId);
 
-        // Clear PocketMine's internal form registry to prevent memory leaks
-        // when players spam requests that trigger form sending.
+        // Clear Player's internal form storage to prevent memory leaks when players spam requests that trigger form sending.
         $reflection = new ReflectionClass($player);
         $property = $reflection->getProperty("forms");
         $property->setAccessible(true);
         $property->setValue($player, []);
+    }
+
+    /**
+     * Processes a validated form submission for a player session.
+     *
+     * - Retrieves the current form from the player's internal form storage.
+     * - Calls the form's handleResponse() method with the provided response data.
+     * - Disconnects the player if form validation fails.
+     * - Always clears the current form ID in the session afterward.
+     *
+     * @param Session $session Player session owning the form.
+     * @param int $formId ID of the form being submitted.
+     * @param mixed $responseData Decoded response data, or null if form was closed.
+     * @return void
+     * @throws ReflectionException
+     */
+    private function onFormResponse(Session $session, int $formId, mixed $responseData): void {
+        $player = $session->getPlayer();
+        $reflection = new ReflectionClass($player);
+        $property = $reflection->getProperty("forms");
+        $property->setAccessible(true);
+        /** @var AbstractForm $currentForm */
+        $currentForm = $property->getValue($player)[$formId];
+
+        try {
+            $currentForm->handleResponse($session->getPlayer(), $responseData);
+        } catch (FormValidationException $e) {
+            $player->getNetworkSession()->getLogger()->error("FormsHandler: Failed to validate form " . get_class($currentForm) . ": " . $e->getMessage());
+        } finally {
+            $session->setCurrentFormId(null);
+        }
     }
 }
