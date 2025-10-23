@@ -12,6 +12,8 @@ FormsHandler also includes an **optional JSON-UI texture pack** that enhances th
 
 # Overview
 
+## General
+
 FormsHandler gives you **full control over the form lifecycle** through a secure and state-aware management layer:
 - **Automatic form closing** when a player moves, interacts, or performs actions **while a form is open**
 - **Smart validation** ensures responses are only accepted when the form is active and the player is connected
@@ -27,18 +29,31 @@ However, these external forms have limited support and functionality, especially
 
 For the **best experience including** full validation and enhanced UI, it’s **strongly recommended** to create forms **through the FormsHandler API**.
 
+## Fixed Multi CustomForms Handling (JSON-UI compatibility)
+
+When using **JSON-UI** on the client side, it’s possible to generate **multiple CustomForms at once**, each one being **shown or hidden dynamically** depending on the **interface title** or **bindings**.
+
+In most **PocketMine form APIs**, this behavior causes **mismatches between client-side elements and server-side validation**: the **client sends extra values for hidden CustomForms**, while the **server expects only the fields from the visible form**.
+
+**For example:**  
+If a CustomForm defines **5 elements**, but the currently visible UI only shows **2 clickable inputs**, the player would correctly send responses for these **2 visible elements** — but also include data from **3 hidden elements** that belong to other **hidden CustomForms**.
+
+This caused **malformed data** and **API issues** when multiple CustomForms coexisted in the same texture pack.
+
+The new **validation layer** now properly **filters**, **maps**, and **normalizes** responses, ensuring that only **visible and active form elements** are processed **server-side**.
+
 # Features
 
 ## Project TODO Progress
 
-- [x] Base implementation of SimpleForm, CustomForm, and ModalForm classes
-- [x] Automatically closes forms when a player attempt forbidden actions (movement, inventory use, etc.)
-- [x] Ensures that only responses from the currently active form are processed
-- [x] Accepts external (non-FormsHandler) forms with limited functionality
-- [x] Logging for form anomalies
-- [x] Adds headers, dividers, and labels in Custom Forms
-- [ ] Adds headers, dividers, and labels between buttons in Simple Forms via the optional JSON-UI texture pack
-- [ ] Configurable rules
+- [x] **Base implementation** of `SimpleForm`, `CustomForm`, and `ModalForm` classes
+- [x] **Automatically closes** forms when a player attempts forbidden actions *(movement, inventory use, etc.)*
+- [x] **Ensures** that only responses from the **currently active form** are processed
+- [x] **Accepts external** (non‑FormsHandler) forms with **limited functionality**
+- [x] **Logging** for form anomalies
+- [x] **Adds headers, dividers, and labels** in `CustomForms`
+- [ ] **Adds headers, dividers, and labels between buttons** in `SimpleForms` via the optional **JSON‑UI texture pack**
+- [ ] **Configurable rules** for advanced form behavior
 
 ### Notes
 
@@ -85,16 +100,9 @@ Preview:
 ### Custom Form
 
 ```php
-use pocketmine\player\Player;
+use FormsHandler\elements\customform\{Dropdown,Input,Slider,StepSlider,Toggle};
 use FormsHandler\types\CustomForm;
-use FormsHandler\elements\customform\{
-    Input,
-    Toggle,
-    Dropdown,
-    Slider,
-    StepSlider,
-    Label
-};
+use pocketmine\player\Player;
 
 // Create a new CustomForm
 $form = (new CustomForm())
@@ -139,8 +147,8 @@ use FormsHandler\elements\modalform\Button;
 $form = (new ModalForm())
     ->setTitle("FormsHandler ModalForm Demo")
     ->setContent("Hey there! This is a Modal Form created with FormsHandler.\nChoose one of the options below:")
-    ->setTopButton(new \FormsHandler\elements\modalform\Button("Top button"))
-    ->setBottomButton(new \FormsHandler\elements\modalform\Button("Bottom button"))
+    ->setTopButton(new Button("Top button"))
+    ->setBottomButton(new Button("Bottom button"))
     ->onSubmit(function(Player $player, bool $response) {
         $player->sendMessage("You selected option #" . (int) $response . "!");
     })
