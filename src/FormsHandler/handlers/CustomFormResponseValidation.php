@@ -65,6 +65,17 @@ final class CustomFormResponseValidation {
     }
 
     /**
+     * Validates and reconstructs a raw CustomForm response sent by the client.
+     *
+     * This method rebuilds each form element from its JSON definition and validates
+     * the corresponding response value.
+     *
+     * It ensures compatibility with non-FormsHandler CustomForms.
+     *
+     * - Invalid or missing values are replaced with their default value.
+     * - Visual-only elements are mapped to null.
+     * - The resulting $responseData array is overwritten.
+     *
      * @param array $json
      * @param mixed $responseData
      */
@@ -100,6 +111,10 @@ final class CustomFormResponseValidation {
     }
 
     /**
+     * Builds a CustomFormElement instance from a JSON definition.
+     *
+     * Used to reconstruct a CustomForm element from its serialized data.
+     *
      * @param array $data
      * @return CustomFormElement|null
      */

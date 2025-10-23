@@ -151,7 +151,9 @@ class PacketsHandler implements Listener {
      * Processes a validated form submission for a player session.
      *
      * - Retrieves the current form from the player's internal form storage.
-     * - Calls the form's handleResponse() method with the provided response data.
+     * - Rebuilds CustomForm responses if the form was not created via FormsHandler
+     * {@see https://github.com/SwouitAzia/FormsHandler/commit/3212380972fd0833f46aee3746727c585e31cee6}.
+     * - Calls the form's handleResponse() method with cleaned response data.
      * - Disconnects the player if form validation fails.
      * - Always clears the current form ID in the session afterward.
      *
