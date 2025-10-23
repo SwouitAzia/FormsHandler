@@ -2,5 +2,5 @@ name: FormsHandler
 main: FormsHandler\Main
 description: FormsHandler is a PocketMine-MP plugin that completely redefines how forms are handled and managed on your server
 author: swit_azya
-version: 1.0.0
+version: 1.1.0
 api: 5.0.0
