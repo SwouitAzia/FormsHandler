@@ -3,8 +3,10 @@
 namespace FormsHandler\elements\customform;
 
 use FormsHandler\elements\types\CustomFormElement;
+use FormsHandler\traits\DefaultValueTrait;
 
 class Dropdown extends CustomFormElement {
+    use DefaultValueTrait;
     public function __construct(
         protected string $text,
         protected array $options,
@@ -29,7 +31,7 @@ class Dropdown extends CustomFormElement {
     /**
      * @return int|null
      */
-    public function getDefaultIndex(): ?int {
+    public function getDefaultValue(): ?int {
         return $this->default;
     }
 
@@ -45,7 +47,7 @@ class Dropdown extends CustomFormElement {
             "type" => "dropdown",
             "text" => $this->getText(),
             "options" => $this->getOptions(),
-            "default" => $this->getDefaultIndex()
+            "default" => $this->getDefaultValue()
         ];
     }
 }

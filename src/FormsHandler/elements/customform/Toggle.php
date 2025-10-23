@@ -3,8 +3,10 @@
 namespace FormsHandler\elements\customform;
 
 use FormsHandler\elements\types\CustomFormElement;
+use FormsHandler\traits\DefaultValueTrait;
 
 class Toggle extends CustomFormElement {
+    use DefaultValueTrait;
     /**
      * @param string $text
      * @param bool|null $default
@@ -26,7 +28,7 @@ class Toggle extends CustomFormElement {
     /**
      * @return bool|null
      */
-    public function getDefaultState(): ?bool {
+    public function getDefaultValue(): ?bool {
         return $this->default;
     }
 
@@ -46,7 +48,7 @@ class Toggle extends CustomFormElement {
             "text" => $this->getText()
         ];
 
-        $default = $this->getDefaultState();
+        $default = $this->getDefaultValue();
         if ($default !== null) {
             $content["default"] = $default;
         }

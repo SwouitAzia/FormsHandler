@@ -3,8 +3,10 @@
 namespace FormsHandler\elements\customform;
 
 use FormsHandler\elements\types\CustomFormElement;
+use FormsHandler\traits\DefaultValueTrait;
 
 class StepSlider extends CustomFormElement {
+    use DefaultValueTrait;
     /**
      * @param string $text
      * @param array $steps
@@ -35,7 +37,7 @@ class StepSlider extends CustomFormElement {
     /**
      * @return int
      */
-    public function getDefaultIndex(): int{
+    public function getDefaultValue(): int {
         return $this->default;
     }
 
@@ -56,7 +58,7 @@ class StepSlider extends CustomFormElement {
             "steps" => $this->getSteps()
         ];
 
-        $default = $this->getDefaultIndex();
+        $default = $this->getDefaultValue();
         if ($default !== -1) {
             $content["default"] = $default;
         }

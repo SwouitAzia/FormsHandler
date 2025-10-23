@@ -3,8 +3,10 @@
 namespace FormsHandler\elements\customform;
 
 use FormsHandler\elements\types\CustomFormElement;
+use FormsHandler\traits\DefaultValueTrait;
 
 class Slider extends CustomFormElement {
+    use DefaultValueTrait;
     /**
      * @param string $text
      * @param int $min
@@ -53,7 +55,7 @@ class Slider extends CustomFormElement {
     /**
      * @return int
      */
-    public function getDefaultIndex(): int{
+    public function getDefaultValue(): int {
         return $this->default;
     }
 
@@ -80,7 +82,7 @@ class Slider extends CustomFormElement {
             $content["step"] = $step;
         }
 
-        $default = $this->getDefaultIndex();
+        $default = $this->getDefaultValue();
         if ($default !== -1) {
             $content["default"] = $default;
         }

@@ -1,6 +1,6 @@
 <?php
 
-namespace FormsHandler\elements\customform;
+namespace FormsHandler\elements\customform\visual;
 
 class Label extends VisualElement {
     /**

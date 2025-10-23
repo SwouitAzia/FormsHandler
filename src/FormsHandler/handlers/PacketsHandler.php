@@ -67,7 +67,7 @@ class PacketsHandler implements Listener {
             $session = SessionsHandler::getInstance()->get($player);
             $id = $packet->formId;
             if ($id !== $session->getCurrentFormId()) {
-                $origin->getLogger()->error("FormsHandler: Form response rejected, no active form or form ID mismatch.");
+                $origin->getLogger()->error("FormsHandler: Form response rejected, no active form or form ID mismatch");
                 $session->setCurrentFormId(null);
                 return;
             }
@@ -108,7 +108,7 @@ class PacketsHandler implements Listener {
         if (!isset(self::UNAUTHORIZED_PACKET_IDS[$event->getPacketId()]) || SessionsHandler::getInstance()->get($player)->getCurrentFormId() === null) return;
 
         $event->cancel();
-        $origin->getLogger()->error("FormsHandler: Action detected while a form was open.");
+        $origin->getLogger()->error("FormsHandler: Action detected while a form was open");
     }
 
     /**

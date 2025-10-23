@@ -3,8 +3,10 @@
 namespace FormsHandler\elements\customform;
 
 use FormsHandler\elements\types\CustomFormElement;
+use FormsHandler\traits\DefaultValueTrait;
 
 class Input extends CustomFormElement {
+    use DefaultValueTrait;
     /**
      * @param string $text
      * @param string $placeholder

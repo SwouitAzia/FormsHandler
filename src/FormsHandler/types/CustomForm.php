@@ -2,18 +2,19 @@
 
 namespace FormsHandler\types;
 
-use FormsHandler\elements\customform\Divider;
 use FormsHandler\elements\customform\Dropdown;
-use FormsHandler\elements\customform\Header;
 use FormsHandler\elements\customform\Input;
-use FormsHandler\elements\customform\Label;
 use FormsHandler\elements\customform\Slider;
 use FormsHandler\elements\customform\StepSlider;
 use FormsHandler\elements\customform\Toggle;
-use FormsHandler\elements\customform\VisualElement;
+use FormsHandler\elements\customform\visual\Divider;
+use FormsHandler\elements\customform\visual\Header;
+use FormsHandler\elements\customform\visual\Label;
+use FormsHandler\elements\customform\visual\VisualElement;
 use FormsHandler\elements\types\CustomFormElement;
 use FormsHandler\exceptions\FormCreationException;
 use FormsHandler\handlers\CustomFormResponseValidation;
+use FormsHandler\traits\DefaultValueTrait;
 use pocketmine\form\FormValidationException;
 use pocketmine\player\Player;
 
@@ -109,36 +110,32 @@ class CustomForm extends AbstractForm {
         }
         if (is_array($data)) {
             $mapSize = sizeof($this->labelsMap);
-            if (count($data) !== $mapSize) {
-                throw new FormValidationException("Expected an array response with the size " . $mapSize . ", got " . count($data));
-            }
             $new = [];
-            foreach ($data as $i => $v) {
+            for ($i = 0; $i < $mapSize; $i++) {
                 if (!isset($this->labelsMap[$i])) {
                     throw new FormValidationException("Invalid element " . $i);
                 }
 
                 $element = $this->elements[$i];
 
-                // Visual elements (headers, dividers, labels) should never have a value.
                 if ($element instanceof VisualElement) {
                     $new[$this->labelsMap[$i]] = null;
                     continue;
                 }
 
+                $v = $data[$i];
                 $isValid = match ($element::class) {
                     Dropdown::class => CustomFormResponseValidation::validDropdown($element, $v),
                     Slider::class => CustomFormResponseValidation::validSlider($element, $v),
                     Toggle::class => CustomFormResponseValidation::validToggle($element, $v),
                     StepSlider::class => CustomFormResponseValidation::validStepSlider($element, $v),
-                    Input::class => CustomFormResponseValidation::validInput($element, $v),
-                    default => throw new FormValidationException(
-                        "Unsupported element type: " . $element::class
-                    ),
+                    Input::class => CustomFormResponseValidation::validInput($element, $v)
                 };
 
                 if (!$isValid) {
-                    throw new FormValidationException("Invalid value for element at index $i (" . $element::class . ")");
+                    /** @var DefaultValueTrait $element */
+                    $new[$this->labelsMap[$i]] = $element->getDefaultValue();
+                    continue;
                 }
                 $new[$this->labelsMap[$i]] = $v;
             }

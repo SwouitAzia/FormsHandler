@@ -1,6 +1,6 @@
 <?php
 
-namespace FormsHandler\elements\customform;
+namespace FormsHandler\elements\customform\visual;
 
 class Divider extends VisualElement {
     public function __construct() {
