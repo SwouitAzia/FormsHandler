@@ -2,11 +2,9 @@
 
 namespace FormsHandler\handlers;
 
-use Exception;
 use FormsHandler\sessions\Session;
 use FormsHandler\sessions\SessionsHandler;
-use FormsHandler\types\AbstractForm;
-use JsonException;
+use FormsHandler\types\CustomForm;
 use pocketmine\event\Listener;
 use pocketmine\event\server\DataPacketDecodeEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
@@ -16,8 +14,11 @@ use pocketmine\network\mcpe\protocol\ModalFormRequestPacket;
 use pocketmine\network\mcpe\protocol\ModalFormResponsePacket;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\PacketHandlingException;
+use pocketmine\form\Form;
 use ReflectionClass;
 use ReflectionException;
+use JsonException;
+use Exception;
 
 /**
  * Handles all incoming and outgoing packets related to form interactions.
@@ -165,10 +166,15 @@ class PacketsHandler implements Listener {
         $reflection = new ReflectionClass($player);
         $property = $reflection->getProperty("forms");
         $property->setAccessible(true);
-        /** @var AbstractForm $currentForm */
+        /** @var Form $currentForm */
         $currentForm = $property->getValue($player)[$formId];
 
         try {
+            $json = $currentForm->jsonSerialize();
+            if ($responseData !== null && !$currentForm instanceof CustomForm && is_array($json) && $json["type"] === "custom_form") {
+                CustomFormResponseValidation::handleCustomFormResponse($json, $responseData);
+            }
+
             $currentForm->handleResponse($session->getPlayer(), $responseData);
         } catch (FormValidationException $e) {
             $player->getNetworkSession()->getLogger()->error("FormsHandler: Failed to validate form " . get_class($currentForm) . ": " . $e->getMessage());

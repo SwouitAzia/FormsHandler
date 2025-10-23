@@ -16,7 +16,7 @@ class Input extends CustomFormElement {
     public function __construct(
         protected string $text,
         protected string $placeholder = "",
-        protected ?string $default = null,
+        protected ?string $default = "",
         protected ?string $label = null
     ) {}
 
@@ -37,7 +37,7 @@ class Input extends CustomFormElement {
     /**
      * @return string|null
      */
-    public function getDefaultValue(): ?string {
+    public function getDefaultValue(): string {
         return $this->default;
     }
 

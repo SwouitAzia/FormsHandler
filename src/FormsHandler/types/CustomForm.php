@@ -123,7 +123,7 @@ class CustomForm extends AbstractForm {
                     continue;
                 }
 
-                $v = $data[$i];
+                $v = $data[$i] ?? null;
                 $isValid = match ($element::class) {
                     Dropdown::class => CustomFormResponseValidation::validDropdown($element, $v),
                     Slider::class => CustomFormResponseValidation::validSlider($element, $v),
