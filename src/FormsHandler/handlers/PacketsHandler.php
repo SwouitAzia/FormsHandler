@@ -171,6 +171,7 @@ class PacketsHandler implements Listener {
         /** @var Form $currentForm */
         $currentForm = $property->getValue($player)[$formId];
 
+        $session->setCurrentFormId(null);
         try {
             $json = $currentForm->jsonSerialize();
             if ($responseData !== null && !$currentForm instanceof CustomForm && is_array($json) && $json["type"] === "custom_form") {
@@ -180,8 +181,6 @@ class PacketsHandler implements Listener {
             $currentForm->handleResponse($session->getPlayer(), $responseData);
         } catch (FormValidationException $e) {
             $player->getNetworkSession()->getLogger()->error("FormsHandler: Failed to validate form " . get_class($currentForm) . ": " . $e->getMessage());
-        } finally {
-            $session->setCurrentFormId(null);
         }
     }
 }
