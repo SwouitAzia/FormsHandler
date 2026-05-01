@@ -8,14 +8,14 @@ PocketMine forms are poorly implemented ; allowing players to **move, open inven
 
 It solves all of these issues by providing a **robust, secure, and extensible form management system** designed for reliability.
 
-FormsHandler also includes an **optional JSON-UI texture pack** that enhances the visual presentation of Simple Forms, allowing for headers, labels, and dividers to **be displayed between buttons**.
+Planned upcoming features include an **optional JSON-UI texture pack** providing custom form layouts close to the vanilla aesthetic, as well as **[DDUI (Data-Driven UI)](https://learn.microsoft.com/en-us/minecraft/creator/documents/scripting/intro-to-ddui?view=minecraft-bedrock-stable) support**.
 
 # Overview
 
 ## General
 
 FormsHandler gives you **full control over the form lifecycle** through a secure and state-aware management layer:
-- **Automatic form closing** when a player moves, interacts, or performs actions **while a form is open**
+- **Automatic event cancelling** when a player moves, interacts, or performs actions **while a form is open**
 - **Smart validation** ensures responses are only accepted when the form is active and the player is connected
 - Prevents players from **responding to old or invalid forms**, closing them automatically **if inconsistencies are detected**
 
@@ -23,11 +23,13 @@ Additionally, FormsHandler provides a **clean and fluent API**, making form crea
 
 While FormsHandler is **designed to work best with forms created using its own API**, it can also handle forms **not built** through FormsHandler.
 
-However, these external forms have limited support and functionality, especially for Simple Forms:
-- It’s not possible to distinguish between **a form being closed** and a **button being clicked** (you have to do it yourself)
-- **UI enhancements** for Simple Forms such as headers, labels, or dividers **are not available**
+However, these external forms have limited support and functionality:
+- It's not possible to distinguish between **a form being closed** and a **button being clicked** (you have to do it yourself)
+- **UI enhancements** are not available
 
-For the **best experience including** full validation and enhanced UI, it’s **strongly recommended** to create forms **through the FormsHandler API**.
+For the **best experience**, it's **strongly recommended** to create forms **through the FormsHandler API**:
+- **More complete and secure** handling, especially for CustomForms
+- **Custom layouts** will be available in a future update — no JSON-UI knowledge required
 
 ## Fixed Multi CustomForms Handling (JSON-UI compatibility)
 
@@ -52,12 +54,10 @@ The new **validation layer** now properly **filters**, **maps**, and **normalize
 - [x] **Accepts external** (non‑FormsHandler) forms with **limited functionality**
 - [x] **Logging** for form anomalies
 - [x] **Adds headers, dividers, and labels** in `CustomForms`
-- [ ] **Adds headers, dividers, and labels between buttons** in `SimpleForms` via the optional **JSON‑UI texture pack**
+- [x] **Adds headers, dividers, and labels** in `SimpleForms`
+- [ ] **[DDUI](https://learn.microsoft.com/en-us/minecraft/creator/documents/scripting/intro-to-ddui?view=minecraft-bedrock-stable)** support
+- [ ] **JSON-UI texture pack** with custom form layouts
 - [ ] **Configurable rules** for advanced form behavior
-
-### Notes
-
-> The optional UI enhancement pack for Simple Forms has not been created yet, it will be added in the future.
 
 ## Clean and Expressive API
 
@@ -81,7 +81,10 @@ $form = (new SimpleForm())
     ->setTitle("FormsHandler SimpleForm Demo")
     ->setContent("Hey there! This is a Simple Form created with FormsHandler.\nChoose one of the options below:")
     ->addButton(new Button("Say Hello"))
+    ->addHeader("Header")
+    ->addDivider()
     ->addButton(new Button("How are you?"))
+    ->addLabel("Label")
     ->addButton(new Button("I love Minecraft!"))
     ->onSubmit(function(Player $player, mixed $response) {
         $player->sendMessage("You selected option #$response!");
@@ -163,26 +166,15 @@ $player->sendForm($form);
 Preview:
 ![modal-form](resources/images/modal-form.png)
 
-## Enhanced UI : JSON-UI Texture Pack
+## JSON-UI Texture Pack *(coming soon)*
 
-Minecraft does not allow adding **special UI elements between buttons** in a Simple Form, the layout is fixed and cannot be changed.
+Minecraft Bedrock's native form UI is functional but visually limited — layouts are fixed and offer no customization beyond what the game exposes by default.
 
-To solve this, FormsHandler comes with an **optional JSON-UI texture pack** that modifies the game’s UI.
+To address this, FormsHandler will ship with an **optional JSON-UI texture pack** that provides **custom form layouts designed to blend seamlessly with the vanilla Minecraft aesthetic**, while offering a level of polish that is not achievable with the default UI.
 
-This pack dynamically detects specific text patterns in button labels and displays custom elements such as:
-- Headers
-- Labels
-- Dividers
+The goal is to deliver interfaces that feel **native to the game** while clearly showcasing the added value of using FormsHandler on your server.
 
-These additions make your menus **more structured and visually appealing**, providing a clean and organized layout **that is not possible with native Minecraft Bedrock forms**.
-
-The **resource pack is included in the plugin** under the [/resources](/resources) directory to make updates easier when the plugin is updated.
-
-It is automatically copied to the server’s **resource_packs/** folder when the plugin loads, and enabled by default.
-
-A **configuration file** is available to **enable or disable** these UI enhancements at any time.
-
-> The optional UI enhancement pack for Simple Forms has not been created yet, it will be added in the future.
+The resource pack will be included directly in the plugin under the [/resources](/resources) directory, automatically copied to the server's **resource_packs/** folder on load, and togglable via the **configuration file**.
 
 # Installation
 
@@ -195,14 +187,14 @@ Before installing FormsHandler, make sure you have:
 ## Installing the plugin
 
 1. Navigate to your server’s plugins/ directory:
-```
-cd plugins
-```
+    ```
+    cd plugins
+    ```
 
 2. Clone the repository:
-```
-git clone https://github.com/SwouitAzia/FormsHandler.git
-```
+    ```
+    git clone https://github.com/SwouitAzia/FormsHandler.git
+    ```
 
 3. (Optional) Before starting or restarting your server, you can **edit the [config.yml](resources/config.yml)** to customize features such as the enhanced UI texture pack or other plugin settings.
 
