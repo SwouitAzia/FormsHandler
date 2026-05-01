@@ -2,7 +2,6 @@
 
 namespace FormsHandler;
 
-use FormsHandler\handlers\EventsHandler;
 use FormsHandler\handlers\PacketsHandler;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\SingletonTrait;
@@ -20,7 +19,6 @@ class Main extends PluginBase {
 
         $pluginManager = $this->getServer()->getPluginManager();
         $pluginManager->registerEvents(new PacketsHandler(), $this);
-        $pluginManager->registerEvents(new EventsHandler(), $this);
 
         if ($this->enhancedUi) $this->copyResourcePack();
     }
