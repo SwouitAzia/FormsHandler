@@ -204,7 +204,7 @@ cd plugins
 git clone https://github.com/SwouitAzia/FormsHandler.git
 ```
 
-3. (Optionnal) Before starting or restarting your server, you can **edit the [config.yml](resources/config.yml)** to customize features such as the enhanced UI texture pack or other plugin settings.
+3. (Optional) Before starting or restarting your server, you can **edit the [config.yml](resources/config.yml)** to customize features such as the enhanced UI texture pack or other plugin settings.
 
 4. Start or restart your PocketMine server using start.cmd (Windows) or start.sh (Linux/macOS).
 
