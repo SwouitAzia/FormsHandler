@@ -6,7 +6,7 @@ use pocketmine\player\Player;
 use pocketmine\utils\SingletonTrait;
 use WeakMap;
 
-final class SessionsHandler {
+final class SessionsManager {
     use SingletonTrait;
 
     /** @var WeakMap $sessions */

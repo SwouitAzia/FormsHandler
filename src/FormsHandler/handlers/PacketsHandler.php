@@ -3,7 +3,7 @@
 namespace FormsHandler\handlers;
 
 use FormsHandler\sessions\Session;
-use FormsHandler\sessions\SessionsHandler;
+use FormsHandler\sessions\SessionsManager;
 use FormsHandler\types\CustomForm;
 use pocketmine\event\Listener;
 use pocketmine\event\server\DataPacketDecodeEvent;
@@ -65,7 +65,7 @@ class PacketsHandler implements Listener {
         if ($packet instanceof ModalFormResponsePacket) {
             $event->cancel();
 
-            $session = SessionsHandler::getInstance()->get($player);
+            $session = SessionsManager::getInstance()->get($player);
             $id = $packet->formId;
             if ($id !== $session->getCurrentFormId()) {
                 $origin->getLogger()->error("FormsHandler: Form response rejected, no active form or form ID mismatch");
@@ -106,7 +106,7 @@ class PacketsHandler implements Listener {
         $player = $origin->getPlayer();
 
         if (!$origin->isConnected() || $player === null) return;
-        if (!isset(self::UNAUTHORIZED_PACKET_IDS[$event->getPacketId()]) || SessionsHandler::getInstance()->get($player)->getCurrentFormId() === null) return;
+        if (!isset(self::UNAUTHORIZED_PACKET_IDS[$event->getPacketId()]) || SessionsManager::getInstance()->get($player)->getCurrentFormId() === null) return;
 
         $event->cancel();
         $origin->getLogger()->error("FormsHandler: Action detected while a form was open");
@@ -136,7 +136,7 @@ class PacketsHandler implements Listener {
         if (!$packet instanceof ModalFormRequestPacket || !$nt->isConnected()) return;
 
         $player = $nt->getPlayer();
-        $session = SessionsHandler::getInstance()->get($player);
+        $session = SessionsManager::getInstance()->get($player);
         if ($session->getCurrentFormId() !== null) $player->closeAllForms();
         $session->setCurrentFormId($packet->formId);
 
