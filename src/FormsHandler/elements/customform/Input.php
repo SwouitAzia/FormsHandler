@@ -2,11 +2,13 @@
 
 namespace FormsHandler\elements\customform;
 
-use FormsHandler\elements\types\CustomFormElement;
-use FormsHandler\utils\traits\DefaultValueTrait;
+use FormsHandler\elements\FormElement;
+use FormsHandler\elements\types\CustomElement;
+use FormsHandler\elements\types\CustomElementTrait;
+use FormsHandler\utils\label\LabelInterface;
 
-class Input extends CustomFormElement {
-    use DefaultValueTrait;
+class Input extends FormElement implements CustomElement, LabelInterface {
+    use CustomElementTrait;
 
     /** @var string $placeholder */
     protected string $placeholder;
@@ -14,16 +16,19 @@ class Input extends CustomFormElement {
     /**
      * @param string $text
      * @param string $placeholder
-     * @param string|null $default
+     * @param string $default
      * @param string|null $label
      */
     public function __construct(
         string $text,
         string $placeholder = "",
-        ?string $default = "",
+        string $default = "",
         ?string $label = null
     ) {
-        parent::__construct($text, $default, $label);
+        parent::__construct($text);
+
+        $this->default = $default;
+        $this->label = $label;
 
         $this->placeholder = $placeholder;
     }
@@ -36,14 +41,14 @@ class Input extends CustomFormElement {
     }
 
     /**
-     * @return string|null
+     * @return string
      */
-    public function getDefaultValue(): ?string {
+    public function getDefaultValue(): string {
         return $this->default;
     }
 
     /**
-     * @return array{type: string, text: string, placeholder: string, default: mixed}
+     * @return array{type: string, text: string, placeholder: string, default: string}
      */
     public function jsonSerialize(): array {
         return [

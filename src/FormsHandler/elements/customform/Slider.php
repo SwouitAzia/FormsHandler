@@ -2,38 +2,43 @@
 
 namespace FormsHandler\elements\customform;
 
-use FormsHandler\elements\types\CustomFormElement;
-use FormsHandler\utils\traits\DefaultValueTrait;
+use FormsHandler\elements\FormElement;
+use FormsHandler\elements\types\CustomElement;
+use FormsHandler\elements\types\CustomElementTrait;
+use FormsHandler\utils\label\LabelInterface;
 
-class Slider extends CustomFormElement {
-    use DefaultValueTrait;
+class Slider extends FormElement implements CustomElement, LabelInterface {
+    use CustomElementTrait;
 
-    /** @var int $min */
-    protected int $min;
+    /** @var float $min */
+    protected float $min;
 
-    /** @var int $max */
-    protected int $max;
+    /** @var float $max */
+    protected float $max;
 
     /** @var int $step */
     protected int $step;
 
     /**
      * @param string $text
-     * @param int $min
-     * @param int $max
+     * @param float $min
+     * @param float $max
      * @param int $step
-     * @param int $default
+     * @param float $default
      * @param string|null $label
      */
     public function __construct(
         string $text,
-        int $min,
-        int $max,
-        int $step = -1,
-        int $default = -1,
+        float $min,
+        float $max,
+        int $step = 1,
+        float $default = 1,
         ?string $label = null
     ) {
-        parent::__construct($text, $default, $label);
+        parent::__construct($text);
+
+        $this->default = $default;
+        $this->label = $label;
 
         $this->min = $min;
         $this->max = $max;
@@ -42,16 +47,16 @@ class Slider extends CustomFormElement {
     }
 
     /**
-     * @return int
+     * @return float
      */
-    public function getMinValue(): int {
+    public function getMinValue(): float {
         return $this->min;
     }
 
     /**
-     * @return int
+     * @return float
      */
-    public function getMaxValue(): int {
+    public function getMaxValue(): float {
         return $this->max;
     }
 
@@ -63,33 +68,23 @@ class Slider extends CustomFormElement {
     }
 
     /**
-     * @return int
+     * @return float
      */
-    public function getDefaultValue(): int {
+    public function getDefaultValue(): float {
         return $this->default;
     }
 
     /**
-     * @return array{type: string, text: string, min: int, max: int, step: int, default: int}
+     * @return array{type: string, text: string, min: float, max: float, step: int, default: float}
      */
     public function jsonSerialize(): array {
-        $content = [
+        return [
             "type" => "slider",
             "text" => $this->getText(),
             "min" => $this->getMinValue(),
-            "max" => $this->getMaxValue()
+            "max" => $this->getMaxValue(),
+            "step" => $this->getStep(),
+            "default" => $this->getDefaultValue()
         ];
-
-        $step = $this->getStep();
-        if ($step !== 1) {
-            $content["step"] = $step;
-        }
-
-        $default = $this->getDefaultValue();
-        if ($default !== -1) {
-            $content["default"] = $default;
-        }
-
-        return $content;
     }
 }

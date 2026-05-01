@@ -2,11 +2,13 @@
 
 namespace FormsHandler\elements\customform;
 
-use FormsHandler\elements\types\CustomFormElement;
-use FormsHandler\utils\traits\DefaultValueTrait;
+use FormsHandler\elements\FormElement;
+use FormsHandler\elements\types\CustomElement;
+use FormsHandler\elements\types\CustomElementTrait;
+use FormsHandler\utils\label\LabelInterface;
 
-class Toggle extends CustomFormElement {
-    use DefaultValueTrait;
+class Toggle extends FormElement implements CustomElement, LabelInterface {
+    use CustomElementTrait;
 
     /**
      * @param string $text
@@ -15,10 +17,13 @@ class Toggle extends CustomFormElement {
      */
     public function __construct(
         string $text,
-        ?bool $default = null,
+        bool $default = false,
         ?string $label = null
     ) {
-        parent::__construct($text, $default, $label);
+        parent::__construct($text);
+
+        $this->default = $default;
+        $this->label = $label;
     }
 
     /**
@@ -31,7 +36,7 @@ class Toggle extends CustomFormElement {
     /**
      * @return bool|null
      */
-    public function getDefaultValue(): ?bool {
+    public function getDefaultValue(): bool {
         return $this->default;
     }
 
@@ -46,16 +51,10 @@ class Toggle extends CustomFormElement {
      * @return array{type: string, text: string, default: bool}
      */
     public function jsonSerialize(): array {
-        $content = [
+        return [
             "type" => "toggle",
-            "text" => $this->getText()
+            "text" => $this->getText(),
+            "default" => $this->getDefaultValue()
         ];
-
-        $default = $this->getDefaultValue();
-        if ($default !== null) {
-            $content["default"] = $default;
-        }
-
-        return $content;
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace FormsHandler\utils;
+namespace FormsHandler\elements\visual;
 
 enum VisualElementType: string {
     case DIVIDER = "divider";

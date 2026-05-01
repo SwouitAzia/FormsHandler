@@ -1,6 +1,6 @@
 <?php
 
-namespace FormsHandler\elements\types;
+namespace FormsHandler\elements;
 
 use JsonSerializable;
 

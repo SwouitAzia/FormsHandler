@@ -2,10 +2,13 @@
 
 namespace FormsHandler\elements\simpleform;
 
-use FormsHandler\elements\types\SimpleFormElement;
-use FormsHandler\utils\ImageType;
+use FormsHandler\elements\FormElement;
+use FormsHandler\elements\types\SimpleElement;
+use FormsHandler\elements\types\SimpleElementTrait;
 
-class Button extends SimpleFormElement {
+class Button extends FormElement implements SimpleElement {
+    use SimpleElementTrait;
+
     /** @var ImageType|null $imageType */
     protected ?ImageType $imageType;
 
@@ -24,7 +27,9 @@ class Button extends SimpleFormElement {
         string $imageData = "",
         ?string $label = null
     ) {
-        parent::__construct($text, $label);
+        parent::__construct($text);
+
+        $this->label = $label;
 
         $this->imageType = $imageType;
         $this->imageData = $imageData;
@@ -48,7 +53,10 @@ class Button extends SimpleFormElement {
      * @return array{text: string, image: array{type: string, data: string}}
      */
     public function jsonSerialize(): array {
-        $content = ["text" => $this->getText()];
+        $content = [
+            "type" => "button",
+            "text" => $this->getText()
+        ];
 
         $imageType = $this->getImageType();
         if ($imageType !== null) {

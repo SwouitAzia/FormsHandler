@@ -1,8 +1,9 @@
 <?php
 
-namespace FormsHandler\elements\customform\visual;
+namespace FormsHandler\elements\visual\types;
 
-use FormsHandler\utils\VisualElementType;
+use FormsHandler\elements\visual\VisualElement;
+use FormsHandler\elements\visual\VisualElementType;
 
 class Header extends VisualElement {
     /**

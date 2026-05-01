@@ -7,14 +7,10 @@ use FormsHandler\elements\customform\Input;
 use FormsHandler\elements\customform\Slider;
 use FormsHandler\elements\customform\StepSlider;
 use FormsHandler\elements\customform\Toggle;
-use FormsHandler\elements\customform\visual\Divider;
-use FormsHandler\elements\customform\visual\Header;
-use FormsHandler\elements\customform\visual\Label;
-use FormsHandler\elements\customform\visual\VisualElement;
-use FormsHandler\elements\types\CustomFormElement;
-use FormsHandler\exceptions\FormCreationException;
+use FormsHandler\elements\types\CustomElement;
+use FormsHandler\elements\visual\FormVisualsTrait;
+use FormsHandler\elements\visual\VisualElement;
 use FormsHandler\handlers\CustomFormResponseValidation;
-use FormsHandler\utils\traits\DefaultValueTrait;
 use pocketmine\form\FormValidationException;
 use pocketmine\player\Player;
 
@@ -24,9 +20,12 @@ use pocketmine\player\Player;
  * This form allows adding interactive elements, labels, headers, and dividers.
  */
 class CustomForm extends AbstractForm {
-    public const FORM_TYPE = "custom_form";
+    use FormVisualsTrait;
 
-    /** @var CustomFormElement[] $elements */
+    public const FORM_TYPE = "custom_form";
+    public const CUSTOM_CONTENT = "content";
+
+    /** @var CustomElement[] $elements */
     private array $elements = [];
 
     /** @var array<string, string|int> */
@@ -35,7 +34,7 @@ class CustomForm extends AbstractForm {
     public function __construct() {
         parent::__construct();
 
-        $this->data["content"] = [];
+        $this->data[self::CUSTOM_CONTENT] = [];
     }
 
     /**
@@ -48,58 +47,18 @@ class CustomForm extends AbstractForm {
     }
 
     /**
-     * @param CustomFormElement $element
+     * @param CustomElement $element
      * @return $this
+     * @deprecated
+     * @internal
      */
-    public function addElement(CustomFormElement $element): self {
-        $this->data["content"][] = $element->jsonSerialize();
+    public function addElement(CustomElement $element): self {
+        $this->data[self::CUSTOM_CONTENT][] = $element->jsonSerialize();
 
         $this->elements[] = $element;
         $this->labelsMap[] = $element->getLabel() ?? sizeof($this->labelsMap);
 
         return $this;
-    }
-
-    /**
-     * @param CustomFormElement[] $elements
-     * @return $this
-     */
-    public function setElements(array $elements): self {
-        $this->data["content"] = [];
-        $this->elements = [];
-
-        foreach ($elements as $element) {
-            if (!$element instanceof CustomFormElement) {
-                throw new FormCreationException("\$elements must be an array of CustomFormElement");
-            }
-
-            $this->addElement($element);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param string $text
-     * @return $this
-     */
-    public function addLabel(string $text): self {
-        return $this->addElement(new Label($text));
-    }
-
-    /**
-     * @param string $text
-     * @return $this
-     */
-    public function addHeader(string $text): self {
-        return $this->addElement(new Header($text));
-    }
-
-    /**
-     * @return $this
-     */
-    public function addDivider(): self {
-        return $this->addElement(new Divider());
     }
 
     /**

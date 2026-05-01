@@ -7,7 +7,7 @@ use FormsHandler\elements\customform\Input;
 use FormsHandler\elements\customform\Slider;
 use FormsHandler\elements\customform\StepSlider;
 use FormsHandler\elements\customform\Toggle;
-use FormsHandler\elements\types\CustomFormElement;
+use FormsHandler\elements\types\CustomElement;
 
 /**
  * Class for validating player-submitted values in custom form elements.
@@ -43,7 +43,7 @@ final class CustomFormResponseValidation {
      * @return bool
      */
     public static function validDropdown(Dropdown $dropdown, mixed $value): bool {
-        return is_int($value) && isset($dropdown->getOptions()[$value]);
+        return is_numeric($value) && isset($dropdown->getOptions()[$value]);
     }
 
     /**
@@ -52,7 +52,7 @@ final class CustomFormResponseValidation {
      * @return bool
      */
     public static function validSlider(Slider $slider, mixed $value): bool {
-        return (is_int($value) || is_float($value)) && $value >= $slider->getMinValue() && $value <= $slider->getMaxValue();
+        return is_numeric($value) && $value >= $slider->getMinValue() && $value <= $slider->getMaxValue();
     }
 
     /**
@@ -61,7 +61,7 @@ final class CustomFormResponseValidation {
      * @return bool
      */
     public static function validStepSlider(StepSlider $stepSlider, mixed $value): bool {
-        return is_int($value) && isset($stepSlider->getSteps()[$value]);
+        return is_numeric($value) && isset($stepSlider->getSteps()[$value]);
     }
 
     /**
@@ -116,9 +116,9 @@ final class CustomFormResponseValidation {
      * Used to reconstruct a CustomForm element from its serialized data.
      *
      * @param array $data
-     * @return CustomFormElement|null
+     * @return CustomElement|null
      */
-    private static function elementFromJSON(array $data): ?CustomFormElement {
+    private static function elementFromJSON(array $data): ?CustomElement {
         $element = null;
 
         switch ($data["type"] ?? "unknown") {
@@ -129,10 +129,10 @@ final class CustomFormResponseValidation {
                 $element = new Dropdown($data["text"] ?? "", $data["options"] ?? [], $data["default"] ?? null);
                 break;
             case "slider":
-                $element = new Slider($data["text"] ?? "", $data["min"], $data["max"], $data["step"] ?? -1, $data["default"] ?? -1);
+                $element = new Slider($data["text"] ?? "", $data["min"], $data["max"], $data["step"] ?? 1, $data["default"] ?? 1);
                 break;
             case "step_slider":
-                $element = new StepSlider($data["text"] ?? "", $data["steps"] ?? [], $data["default"] ?? -1);
+                $element = new StepSlider($data["text"] ?? "", $data["steps"] ?? [], $data["default"] ?? 1);
                 break;
             case "toggle":
                 $element = new Toggle($data["text"] ?? "", $data["default"] ?? null);

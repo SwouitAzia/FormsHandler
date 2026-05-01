@@ -3,6 +3,7 @@
 namespace FormsHandler;
 
 use FormsHandler\handlers\PacketsHandler;
+use FormsHandler\utils\tests\TestsListener;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\SingletonTrait;
 
@@ -15,10 +16,12 @@ class Main extends PluginBase {
     private string $packName = "FormsHandlerUI";
 
     public function onEnable(): void {
+        self::setInstance($this);
         $this->loadConfig();
 
         $pluginManager = $this->getServer()->getPluginManager();
         $pluginManager->registerEvents(new PacketsHandler(), $this);
+        //$pluginManager->registerEvents(new TestsListener(), $this);
 
         if ($this->enhancedUi) $this->copyResourcePack();
     }

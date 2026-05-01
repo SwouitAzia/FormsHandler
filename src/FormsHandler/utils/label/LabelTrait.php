@@ -1,15 +1,13 @@
 <?php
 
-namespace FormsHandler\utils\traits;
-
-use FormsHandler\utils\interfaces\LabelInterface;
+namespace FormsHandler\utils\label;
 
 /**
  * @see LabelInterface
  */
 trait LabelTrait {
     /** @var string|null $label */
-    protected ?string $label;
+    protected ?string $label = null;
 
     /**
      * @return string|null

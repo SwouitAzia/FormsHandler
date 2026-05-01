@@ -2,34 +2,23 @@
 
 namespace FormsHandler\handlers;
 
-use FormsHandler\elements\customform\Dropdown;
-use FormsHandler\elements\customform\Input;
-use FormsHandler\elements\customform\Slider;
-use FormsHandler\elements\customform\StepSlider;
-use FormsHandler\elements\customform\Toggle;
-use FormsHandler\elements\simpleform\Button;
+use Exception;
 use FormsHandler\sessions\Session;
 use FormsHandler\sessions\SessionsManager;
 use FormsHandler\types\CustomForm;
-use FormsHandler\types\ModalForm;
-use FormsHandler\types\SimpleForm;
+use JsonException;
 use pocketmine\event\Listener;
-use pocketmine\event\player\PlayerChatEvent;
 use pocketmine\event\server\DataPacketDecodeEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\event\server\DataPacketSendEvent;
+use pocketmine\form\Form;
 use pocketmine\form\FormValidationException;
 use pocketmine\network\mcpe\protocol\ModalFormRequestPacket;
 use pocketmine\network\mcpe\protocol\ModalFormResponsePacket;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\PacketHandlingException;
-use pocketmine\form\Form;
-use pocketmine\player\Player;
 use ReflectionClass;
 use ReflectionException;
-use FormsHandler\elements\modalform\Button as ModalFormButton;
-use JsonException;
-use Exception;
 
 /**
  * Handles all incoming and outgoing packets related to form interactions.
@@ -192,72 +181,6 @@ class PacketsHandler implements Listener {
             $currentForm->handleResponse($session->getPlayer(), $responseData);
         } catch (FormValidationException $e) {
             $player->getNetworkSession()->getLogger()->error("FormsHandler: Failed to validate form " . get_class($currentForm) . ": " . $e->getMessage());
-        }
-    }
-
-    public function onPlayerChat(PlayerChatEvent $event): void {
-        $msg = $event->getMessage();
-        $player = $event->getPlayer();
-
-        $form = null;
-
-        switch ($msg) {
-            case "a":
-                $form = (new SimpleForm())
-                    ->setTitle("FormsHandler SimpleForm Demo")
-                    ->setContent("Hey there! This is a Simple Form created with FormsHandler.\nChoose one of the options below:")
-                    ->addButton(new Button("Say Hello"))
-                    ->addButton(new Button("How are you?"))
-                    ->addButton(new Button("I love Minecraft!"))
-                    ->onSubmit(function(Player $player, mixed $response) {
-                        $player->sendMessage("You selected option #$response!");
-                    })
-                    ->onClose(function(Player $player) {
-                        $player->sendMessage("You closed the form.");
-                    });
-                break;
-            case "b":
-                $form = (new CustomForm())
-                    ->setTitle("FormsHandler CustomForm Demo")
-                    ->addHeader("Welcome to the CustomForm Demo")
-                    ->addLabel("Hey there! This is a Custom Form created with FormsHandler.\nThis form demonstrates multiple element types provided by FormsHandler.")
-                    ->addDivider()
-
-                    ->addElement(new Input("Your nickname", "Enter your name...", "Steve"))
-                    ->addElement(new Toggle("Enable notifications"))
-                    ->addDivider()
-
-                    ->addHeader("Preferences")
-                    ->addElement(new Dropdown("Choose your favorite block", ["Grass Block", "Diamond Block", "TNT", "Crafting Table"]))
-                    ->addElement(new Slider("Select your skill level", 1, 10, 1, 5))
-                    ->addElement(new StepSlider("Pick a difficulty", ["Peaceful","Easy","Normal","Hard"]))
-                    ->addDivider()
-                    ->addLabel("End of form")
-
-                    ->onSubmit(function(Player $player, array $response) {
-                        // ...
-                    })
-                    ->onClose(function(Player $player) {
-                        $player->sendMessage("You closed the form.");
-                    });
-                break;
-            case "c":
-                $form = (new ModalForm())
-                    ->setTitle("FormsHandler ModalForm Demo")
-                    ->setContent("Hey there! This is a Modal Form created with FormsHandler.\nChoose one of the options below:")
-                    ->setTopButton(new ModalFormButton("Top button"))
-                    ->setBottomButton(new ModalFormButton("Bottom button"))
-                    ->onSubmit(function(Player $player, bool $response) {
-                        $player->sendMessage("You selected option #" . (int) $response . "!");
-                    })
-                    ->onClose(function(Player $player) {
-                        $player->sendMessage("You closed the form.");
-                    });
-
-        }
-
-        if ($form !== null) {
-            $player->sendForm($form);
         }
     }
 }

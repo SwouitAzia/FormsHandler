@@ -1,6 +1,6 @@
 <?php
 
-namespace FormsHandler\utils\interfaces;
+namespace FormsHandler\utils\label;
 
 interface LabelInterface {
     /**

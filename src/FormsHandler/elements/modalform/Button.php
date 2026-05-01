@@ -2,9 +2,10 @@
 
 namespace FormsHandler\elements\modalform;
 
-use FormsHandler\elements\types\ModalFormElement;
+use FormsHandler\elements\FormElement;
+use FormsHandler\elements\types\ModalElement;
 
-class Button extends ModalFormElement {
+class Button extends FormElement implements ModalElement {
     /**
      * @param string $text
      */

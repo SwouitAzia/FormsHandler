@@ -2,30 +2,34 @@
 
 namespace FormsHandler\elements\types;
 
-use FormsHandler\utils\interfaces\LabelInterface;
-use FormsHandler\utils\traits\LabelTrait;
+use FormsHandler\utils\label\LabelTrait;
 
-abstract class SimpleFormElement extends FormElement implements LabelInterface {
+trait CustomElementTrait {
     use LabelTrait;
+
+    /** @var mixed $default */
+    protected mixed $default;
 
     /**
      * @param string $text
+     * @param mixed|null $default
      * @param string|null $label
      */
     public function __construct(
         string $text,
+        mixed $default = null,
         ?string $label = null
     ) {
         parent::__construct($text);
 
+        $this->default = $default;
         $this->label = $label;
     }
 
     /**
-     * TODO: useful?
-     * @return bool
+     * @return mixed
      */
-    public function isButton(): bool {
-        return true;
+    public function getDefaultValue(): mixed {
+        return $this->default;
     }
 }

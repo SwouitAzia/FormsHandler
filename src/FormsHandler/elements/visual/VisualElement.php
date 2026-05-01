@@ -1,11 +1,12 @@
 <?php
 
-namespace FormsHandler\elements\customform\visual;
+namespace FormsHandler\elements\visual;
 
-use FormsHandler\elements\types\CustomFormElement;
-use FormsHandler\utils\VisualElementType;
+use FormsHandler\elements\FormElement;
+use FormsHandler\elements\types\CustomElement;
+use FormsHandler\elements\types\SimpleElement;
 
-abstract class VisualElement extends CustomFormElement {
+abstract class VisualElement extends FormElement implements CustomElement, SimpleElement {
     /** @var VisualElementType $type */
     protected VisualElementType $type;
 
@@ -25,17 +26,24 @@ abstract class VisualElement extends CustomFormElement {
     /**
      * @return VisualElementType
      */
-    public function getType(): VisualElementType {
+    public  function getType(): VisualElementType {
         return $this->type;
     }
 
     /**
-     * @return array{type: string, text: string}
+     * @return array
      */
     public function jsonSerialize(): array {
         return [
             "type" => $this->getType()->getName(),
             "text" => $this->getText()
         ];
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getLabel(): ?string {
+        return null;
     }
 }

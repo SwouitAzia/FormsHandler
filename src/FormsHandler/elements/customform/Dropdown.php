@@ -2,11 +2,13 @@
 
 namespace FormsHandler\elements\customform;
 
-use FormsHandler\elements\types\CustomFormElement;
-use FormsHandler\utils\traits\DefaultValueTrait;
+use FormsHandler\elements\FormElement;
+use FormsHandler\elements\types\CustomElement;
+use FormsHandler\elements\types\CustomElementTrait;
+use FormsHandler\utils\label\LabelInterface;
 
-class Dropdown extends CustomFormElement {
-    use DefaultValueTrait;
+class Dropdown extends FormElement implements CustomElement, LabelInterface {
+    use CustomElementTrait;
 
     /** @var array $options */
     protected array $options;
@@ -23,7 +25,10 @@ class Dropdown extends CustomFormElement {
         ?int $default = null,
         ?string $label = null
     ) {
-        parent::__construct($text, $default, $label);
+        parent::__construct($text);
+
+        $this->default = $default;
+        $this->label = $label;
 
         $this->options = $options;
     }

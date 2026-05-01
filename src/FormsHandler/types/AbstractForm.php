@@ -43,7 +43,7 @@ abstract class AbstractForm implements PMForm {
     }
 
     /**
-     * @param callable $onSubmit
+     * @param callable(Player $player, mixed $data): void $onSubmit
      * @return $this
      */
     public function onSubmit(callable $onSubmit): self {
@@ -54,7 +54,7 @@ abstract class AbstractForm implements PMForm {
     }
 
     /**
-     * @param callable $onClose
+     * @param callable(Player $player): void $onClose
      * @return $this
      */
     public function onClose(callable $onClose): self {
