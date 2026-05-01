@@ -67,9 +67,9 @@ class PacketsHandler implements Listener {
 
             $session = SessionsManager::getInstance()->get($player);
             $id = $packet->formId;
-            if ($id !== $session->getCurrentFormId()) {
+            if ($id !== $session->getFormId()) {
                 $origin->getLogger()->error("FormsHandler: Form response rejected, no active form or form ID mismatch");
-                $session->setCurrentFormId(null);
+                $session->setFormId(null);
                 return;
             }
 
@@ -106,7 +106,7 @@ class PacketsHandler implements Listener {
         $player = $origin->getPlayer();
 
         if (!$origin->isConnected() || $player === null) return;
-        if (!isset(self::UNAUTHORIZED_PACKET_IDS[$event->getPacketId()]) || SessionsManager::getInstance()->get($player)->getCurrentFormId() === null) return;
+        if (!isset(self::UNAUTHORIZED_PACKET_IDS[$event->getPacketId()]) || SessionsManager::getInstance()->get($player)->getFormId() === null) return;
 
         $event->cancel();
         $origin->getLogger()->error("FormsHandler: Action detected while a form was open");
@@ -137,8 +137,8 @@ class PacketsHandler implements Listener {
 
         $player = $nt->getPlayer();
         $session = SessionsManager::getInstance()->get($player);
-        if ($session->getCurrentFormId() !== null) $player->closeAllForms();
-        $session->setCurrentFormId($packet->formId);
+        if ($session->getFormId() !== null) $player->closeAllForms();
+        $session->setFormId($packet->formId);
 
         // Clear Player's internal form storage to prevent memory leaks when players spam requests that trigger form sending.
         $reflection = new ReflectionClass($player);
@@ -171,7 +171,7 @@ class PacketsHandler implements Listener {
         /** @var Form $currentForm */
         $currentForm = $property->getValue($player)[$formId];
 
-        $session->setCurrentFormId(null);
+        $session->setFormId(null);
         try {
             $json = $currentForm->jsonSerialize();
             if ($responseData !== null && !$currentForm instanceof CustomForm && is_array($json) && $json["type"] === "custom_form") {

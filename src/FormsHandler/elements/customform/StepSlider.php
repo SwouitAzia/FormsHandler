@@ -3,10 +3,14 @@
 namespace FormsHandler\elements\customform;
 
 use FormsHandler\elements\types\CustomFormElement;
-use FormsHandler\traits\DefaultValueTrait;
+use FormsHandler\utils\traits\DefaultValueTrait;
 
 class StepSlider extends CustomFormElement {
     use DefaultValueTrait;
+
+    /** @var array $steps */
+    protected array $steps;
+
     /**
      * @param string $text
      * @param array $steps
@@ -14,17 +18,14 @@ class StepSlider extends CustomFormElement {
      * @param string|null $label
      */
     public function __construct(
-        protected string $text,
-        protected array $steps,
-        protected int $default = -1,
-        protected ?string $label = null
-    ) {}
+        string $text,
+        array $steps,
+        int $default = -1,
+        ?string $label = null
+    ) {
+        parent::__construct($text, $default, $label);
 
-    /**
-     * @return string
-     */
-    public function getText(): string {
-        return $this->text;
+        $this->steps = $steps;
     }
 
     /**
@@ -42,14 +43,7 @@ class StepSlider extends CustomFormElement {
     }
 
     /**
-     * @return string|null
-     */
-    public function getLabel(): ?string {
-        return $this->label;
-    }
-
-    /**
-     * @return array
+     * @return array{type: string, text: string, steps: array, default: int}
      */
     public function jsonSerialize(): array {
         $content = [

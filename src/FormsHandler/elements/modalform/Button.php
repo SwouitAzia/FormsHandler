@@ -5,15 +5,13 @@ namespace FormsHandler\elements\modalform;
 use FormsHandler\elements\types\ModalFormElement;
 
 class Button extends ModalFormElement {
-    public function __construct(
-        protected string $text
-    ) {}
-
     /**
-     * @return string
+     * @param string $text
      */
-    public function getText(): string {
-        return $this->text;
+    public function __construct(
+        string $text
+    ) {
+        parent::__construct($text);
     }
 
     /**

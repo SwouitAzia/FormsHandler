@@ -5,43 +5,35 @@ namespace FormsHandler\elements\customform\visual;
 use FormsHandler\elements\types\CustomFormElement;
 
 abstract class VisualElement extends CustomFormElement {
+    /** @var VisualElementType $type */
+    protected VisualElementType $type;
+
     /**
-     * @param string $type
+     * @param VisualElementType $type
      * @param string $text
      */
     public function __construct(
-        protected string $type,
-        protected string $text
-    ) {}
+        VisualElementType $type,
+        string $text
+    ) {
+        parent::__construct($text);
 
-    /**
-     * @return string
-     */
-    public function getText(): string {
-        return $this->text;
+        $this->type = $type;
     }
 
     /**
-     * @return string
+     * @return VisualElementType
      */
-    public function getType(): string {
+    public function getType(): VisualElementType {
         return $this->type;
     }
 
-
     /**
-     * @return string|null
-     */
-    public function getLabel(): ?string {
-        return null;
-    }
-
-    /**
-     * @return array
+     * @return array{type: string, text: string}
      */
     public function jsonSerialize(): array {
         return [
-            "type" => $this->getType(),
+            "type" => $this->getType()->getName(),
             "text" => $this->getText()
         ];
     }

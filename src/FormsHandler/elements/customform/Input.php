@@ -3,10 +3,14 @@
 namespace FormsHandler\elements\customform;
 
 use FormsHandler\elements\types\CustomFormElement;
-use FormsHandler\traits\DefaultValueTrait;
+use FormsHandler\utils\traits\DefaultValueTrait;
 
 class Input extends CustomFormElement {
     use DefaultValueTrait;
+
+    /** @var string $placeholder */
+    protected string $placeholder;
+
     /**
      * @param string $text
      * @param string $placeholder
@@ -14,17 +18,14 @@ class Input extends CustomFormElement {
      * @param string|null $label
      */
     public function __construct(
-        protected string $text,
-        protected string $placeholder = "",
-        protected ?string $default = "",
-        protected ?string $label = null
-    ) {}
+        string $text,
+        string $placeholder = "",
+        ?string $default = "",
+        ?string $label = null
+    ) {
+        parent::__construct($text, $default, $label);
 
-    /**
-     * @return string
-     */
-    public function getText(): string {
-        return $this->text;
+        $this->placeholder = $placeholder;
     }
 
     /**
@@ -37,19 +38,12 @@ class Input extends CustomFormElement {
     /**
      * @return string|null
      */
-    public function getDefaultValue(): string {
+    public function getDefaultValue(): ?string {
         return $this->default;
     }
 
     /**
-     * @return string|null
-     */
-    public function getLabel(): ?string {
-        return $this->label;
-    }
-
-    /**
-     * @return array
+     * @return array{type: string, text: string, placeholder: string, default: mixed}
      */
     public function jsonSerialize(): array {
         return [

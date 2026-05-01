@@ -10,6 +10,9 @@ namespace FormsHandler\elements\simpleform;
  * optional UI texture pack, which defines how this pseudo-button is rendered.
  */
 abstract class VisualElement extends Button {
+    /**
+     * @return bool
+     */
     public function isButton(): bool {
         return false;
     }

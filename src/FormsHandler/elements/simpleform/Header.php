@@ -3,6 +3,9 @@
 namespace FormsHandler\elements\simpleform;
 
 class Header extends VisualElement {
+    /**
+     * @param string $text
+     */
     public function __construct(
         string $text
     ) {

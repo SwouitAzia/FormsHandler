@@ -5,18 +5,28 @@ namespace FormsHandler\elements\simpleform;
 use FormsHandler\elements\types\SimpleFormElement;
 
 class Button extends SimpleFormElement {
-    public function __construct(
-        protected string $text,
-        protected ?ImageType $imageType = null,
-        protected string $imageData = "",
-        protected ?string $label = null
-    ) {}
+    /** @var ImageType|null $imageType */
+    protected ?ImageType $imageType;
+
+    /** @var string $imageData */
+    protected string $imageData;
 
     /**
-     * @return string
+     * @param string $text
+     * @param ImageType|null $imageType
+     * @param string $imageData
+     * @param string|null $label
      */
-    public function getText(): string {
-        return $this->text;
+    public function __construct(
+        string $text,
+        ?ImageType $imageType = null,
+        string $imageData = "",
+        ?string $label = null
+    ) {
+        parent::__construct($text, $label);
+
+        $this->imageType = $imageType;
+        $this->imageData = $imageData;
     }
 
     /**
@@ -34,15 +44,7 @@ class Button extends SimpleFormElement {
     }
 
     /**
-     * @return string|null
-     */
-    public function getLabel(): ?string {
-        return $this->label;
-    }
-
-
-    /**
-     * @return array|string[]
+     * @return array{text: string, image: array{type: string, data: string}}
      */
     public function jsonSerialize(): array {
         $content = ["text" => $this->getText()];

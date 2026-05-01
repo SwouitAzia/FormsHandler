@@ -5,15 +5,20 @@ namespace FormsHandler\sessions;
 use pocketmine\player\Player;
 
 class Session {
-    /** @var int|null $currentFormId */
-    private ?int $currentFormId = null;
+    /** @var Player $player */
+    private Player $player;
+
+    /** @var int|null $formId */
+    private ?int $formId = null;
 
     /**
      * @param Player $player
      */
     public function __construct(
-        private Player $player
-    ) {}
+        Player $player
+    ) {
+        $this->player = $player;
+    }
 
     /**
      * @return Player
@@ -25,14 +30,14 @@ class Session {
     /**
      * @return int|null
      */
-    public function getCurrentFormId(): ?int {
-        return $this->currentFormId;
+    public function getFormId(): ?int {
+        return $this->formId;
     }
 
     /**
-     * @param int|null $currentFormId
+     * @param int|null $id
      */
-    public function setCurrentFormId(?int $currentFormId): void {
-        $this->currentFormId = $currentFormId;
+    public function setFormId(?int $id): void {
+        $this->formId = $id;
     }
 }

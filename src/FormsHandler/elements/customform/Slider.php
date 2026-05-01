@@ -3,10 +3,20 @@
 namespace FormsHandler\elements\customform;
 
 use FormsHandler\elements\types\CustomFormElement;
-use FormsHandler\traits\DefaultValueTrait;
+use FormsHandler\utils\traits\DefaultValueTrait;
 
 class Slider extends CustomFormElement {
     use DefaultValueTrait;
+
+    /** @var int $min */
+    protected int $min;
+
+    /** @var int $max */
+    protected int $max;
+
+    /** @var int $step */
+    protected int $step;
+
     /**
      * @param string $text
      * @param int $min
@@ -16,19 +26,19 @@ class Slider extends CustomFormElement {
      * @param string|null $label
      */
     public function __construct(
-        protected string $text,
-        protected int $min,
-        protected int $max,
-        protected int $step = -1,
-        protected int $default = -1,
-        protected ?string $label = null
-    ) {}
+        string $text,
+        int $min,
+        int $max,
+        int $step = -1,
+        int $default = -1,
+        ?string $label = null
+    ) {
+        parent::__construct($text, $default, $label);
 
-    /**
-     * @return string
-     */
-    public function getText(): string {
-        return $this->text;
+        $this->min = $min;
+        $this->max = $max;
+
+        $this->step = $step;
     }
 
     /**
@@ -60,14 +70,7 @@ class Slider extends CustomFormElement {
     }
 
     /**
-     * @return string|null
-     */
-    public function getLabel(): ?string {
-        return $this->label;
-    }
-
-    /**
-     * @return array
+     * @return array{type: string, text: string, min: int, max: int, step: int, default: int}
      */
     public function jsonSerialize(): array {
         $content = [

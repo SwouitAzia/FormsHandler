@@ -14,7 +14,7 @@ use FormsHandler\elements\customform\visual\VisualElement;
 use FormsHandler\elements\types\CustomFormElement;
 use FormsHandler\exceptions\FormCreationException;
 use FormsHandler\handlers\CustomFormResponseValidation;
-use FormsHandler\traits\DefaultValueTrait;
+use FormsHandler\utils\traits\DefaultValueTrait;
 use pocketmine\form\FormValidationException;
 use pocketmine\player\Player;
 

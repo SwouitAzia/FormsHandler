@@ -3,22 +3,29 @@
 namespace FormsHandler\elements\customform;
 
 use FormsHandler\elements\types\CustomFormElement;
-use FormsHandler\traits\DefaultValueTrait;
+use FormsHandler\utils\traits\DefaultValueTrait;
 
 class Dropdown extends CustomFormElement {
     use DefaultValueTrait;
-    public function __construct(
-        protected string $text,
-        protected array $options,
-        protected ?int $default = null,
-        protected ?string $label = null
-    ) {}
+
+    /** @var array $options */
+    protected array $options;
 
     /**
-     * @return string
+     * @param string $text
+     * @param array $options
+     * @param int|null $default
+     * @param string|null $label
      */
-    public function getText(): string {
-        return $this->text;
+    public function __construct(
+        string $text,
+        array $options,
+        ?int $default = null,
+        ?string $label = null
+    ) {
+        parent::__construct($text, $default, $label);
+
+        $this->options = $options;
     }
 
     /**
@@ -36,12 +43,8 @@ class Dropdown extends CustomFormElement {
     }
 
     /**
-     * @return string|null
+     * @return array{type: string, text: string, options: array, default: string|null}
      */
-    public function getLabel(): ?string {
-        return $this->label;
-    }
-
     public function jsonSerialize(): array {
         return [
             "type" => "dropdown",

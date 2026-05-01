@@ -3,20 +3,23 @@
 namespace FormsHandler\elements\customform;
 
 use FormsHandler\elements\types\CustomFormElement;
-use FormsHandler\traits\DefaultValueTrait;
+use FormsHandler\utils\traits\DefaultValueTrait;
 
 class Toggle extends CustomFormElement {
     use DefaultValueTrait;
+
     /**
      * @param string $text
      * @param bool|null $default
      * @param string|null $label
      */
     public function __construct(
-        protected string $text,
-        protected ?bool $default = null,
-        protected ?string $label = null
-    ) {}
+        string $text,
+        ?bool $default = null,
+        ?string $label = null
+    ) {
+        parent::__construct($text, $default, $label);
+    }
 
     /**
      * @return string
@@ -40,7 +43,7 @@ class Toggle extends CustomFormElement {
     }
 
     /**
-     * @return array
+     * @return array{type: string, text: string, default: bool}
      */
     public function jsonSerialize(): array {
         $content = [
