@@ -3,6 +3,7 @@
 namespace FormsHandler\elements\simpleform;
 
 use FormsHandler\elements\types\SimpleFormElement;
+use FormsHandler\utils\ImageType;
 
 class Button extends SimpleFormElement {
     /** @var ImageType|null $imageType */

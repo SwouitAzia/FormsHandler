@@ -18,6 +18,8 @@ abstract class AbstractForm implements PMForm {
     public function __construct() {
         $this->data["title"] = "";
         $this->data["content"] = "";
+
+        $this->data["type"] = $this->getFormType();
     }
 
     /**
@@ -87,6 +89,11 @@ abstract class AbstractForm implements PMForm {
      * @return callable
      */
     abstract protected function getSubmitCallableSignature(): callable;
+
+    /**
+     * @return string
+     */
+    abstract public function getFormType(): string;
 
     /**
      * @return array

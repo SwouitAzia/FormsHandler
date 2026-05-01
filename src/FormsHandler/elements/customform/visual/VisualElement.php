@@ -3,6 +3,7 @@
 namespace FormsHandler\elements\customform\visual;
 
 use FormsHandler\elements\types\CustomFormElement;
+use FormsHandler\utils\VisualElementType;
 
 abstract class VisualElement extends CustomFormElement {
     /** @var VisualElementType $type */

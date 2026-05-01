@@ -24,6 +24,8 @@ use pocketmine\player\Player;
  * This form allows adding interactive elements, labels, headers, and dividers.
  */
 class CustomForm extends AbstractForm {
+    public const FORM_TYPE = "custom_form";
+
     /** @var CustomFormElement[] $elements */
     private array $elements = [];
 
@@ -32,8 +34,7 @@ class CustomForm extends AbstractForm {
 
     public function __construct() {
         parent::__construct();
-        $this->data["type"] = "custom_form";
-        $this->data["buttons"] = []; // TODO: useful ?
+
         $this->data["content"] = [];
     }
 
@@ -148,5 +149,12 @@ class CustomForm extends AbstractForm {
      */
     protected function getSubmitCallableSignature(): callable {
         return function(Player $player, array $data) {};
+    }
+
+    /**
+     * @return string
+     */
+    public function getFormType(): string {
+        return self::FORM_TYPE;
     }
 }

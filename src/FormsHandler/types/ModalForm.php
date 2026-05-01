@@ -13,9 +13,10 @@ use pocketmine\player\Player;
  * This form provides two buttons for the user to choose from.
  */
 class ModalForm extends AbstractForm {
+    public const FORM_TYPE = "modal";
+
     public function __construct() {
         parent::__construct();
-        $this->data["type"] = "modal";
 
         $this->data["button1"] = "";
         $this->data["button2"] = "";
@@ -83,5 +84,12 @@ class ModalForm extends AbstractForm {
      */
     protected function getSubmitCallableSignature(): callable {
         return function(Player $player, bool $data) {};
+    }
+
+    /**
+     * @return string
+     */
+    public function getFormType(): string {
+        return self::FORM_TYPE;
     }
 }

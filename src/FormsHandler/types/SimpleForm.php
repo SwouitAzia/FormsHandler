@@ -16,6 +16,9 @@ use pocketmine\player\Player;
  * This form allows adding interactive buttons, labels, headers, and dividers.
  */
 class SimpleForm extends AbstractForm {
+    public const FORM_TYPE = "form";
+    public const SIMPLE_ELEMENTS = "elements";
+
     /** @var Button[] $buttons */
     private array $buttons = [];
 
@@ -24,8 +27,8 @@ class SimpleForm extends AbstractForm {
 
     public function __construct() {
         parent::__construct();
-        $this->data["type"] = "form";
-        $this->data["buttons"] = [];
+
+        $this->data[self::SIMPLE_ELEMENTS] = [];
     }
 
     /**
@@ -33,7 +36,7 @@ class SimpleForm extends AbstractForm {
      * @return $this
      */
     public function addButton(Button $button): self {
-        $this->data["buttons"][] = $button->jsonSerialize();
+        $this->data[self::SIMPLE_ELEMENTS][] = $button->jsonSerialize();
 
         $this->buttons[] = $button;
         $this->labelsMap[] = $button->getLabel() ?? sizeof($this->labelsMap);
@@ -46,7 +49,8 @@ class SimpleForm extends AbstractForm {
      * @return $this
      */
     public function setButtons(array $buttons): self {
-        $this->data["buttons"] = [];
+        $this->data[self::SIMPLE_ELEMENTS] = [];
+
         $this->buttons = [];
         $this->labelsMap = [];
 
@@ -93,7 +97,7 @@ class SimpleForm extends AbstractForm {
             if (!is_int($data)) {
                 throw new FormValidationException("Expected an integer response, got " . gettype($data));
             }
-            $count = count($this->data["buttons"]);
+            $count = count($this->data[self::SIMPLE_ELEMENTS]);
             if ($data >= $count || $data < 0) {
                 throw new FormValidationException("Button at $data does not exist");
             }
@@ -109,5 +113,12 @@ class SimpleForm extends AbstractForm {
      */
     protected function getSubmitCallableSignature(): callable {
         return function(Player $player, mixed $data) {};
+    }
+
+    /**
+     * @return string
+     */
+    public function getFormType(): string {
+        return self::FORM_TYPE;
     }
 }

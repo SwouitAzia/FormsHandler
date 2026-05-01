@@ -2,6 +2,8 @@
 
 namespace FormsHandler\elements\customform\visual;
 
+use FormsHandler\utils\VisualElementType;
+
 class Header extends VisualElement {
     /**
      * @param string $text
@@ -9,7 +11,6 @@ class Header extends VisualElement {
     public function __construct(
         string $text
     ) {
-        $this->text = $text;
-        parent::__construct("header", $this->getText());
+        parent::__construct(VisualElementType::HEADER, $text);
     }
 }
